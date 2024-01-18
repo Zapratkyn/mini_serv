@@ -14,11 +14,13 @@ void	ft_error()
 	exit(1);
 }
 
+// Since we are asked to write "client %d: " before each line, we need to extract every potential line one by one
+
 int extract_message(char *str)
 {
 	int i = 0;
 
-	if (!strlen(str))
+	if (!strlen(str)) // If nothing left to read, we stop sending anything
 		return 0;
 
 	while(str[i] && str[i] != '\n')
@@ -36,7 +38,7 @@ int extract_message(char *str)
 		i++;
 	}
 
-	strcat(tmp, "\n\0");
+	strcat(tmp, "\n\0"); // No need to send the \n to everyone with another line in the main loop
 
 	return 1;
 }
@@ -47,7 +49,7 @@ void	sendAll(int fd, char *str, fd_set *writefds, int fdMax)
 
 	for (int i = 0; i <= fdMax; i++)
 	{
-		if (FD_ISSET(i, writefds) && i != fd)
+		if (FD_ISSET(i, writefds) && i != fd) // We don't want to send the message to its sender
 			send(i, str, len, 0);
 	}
 }
@@ -77,7 +79,7 @@ int main(int ac, char **argv)
 	int sockfd = initsock(&active);
 	int idNext = 0, fdMax = sockfd, offset, client[65536], res;
 
-	struct sockaddr_in servaddr = {0};
+	struct sockaddr_in servaddr = {0}; // No need of bzero(servaddr, sizeof(servaddr))
 	servaddr.sin_family = AF_INET;
 	servaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 	servaddr.sin_port = htons(atoi(argv[1]));
@@ -117,15 +119,15 @@ int main(int ac, char **argv)
 					close(fd);
 				}
 
-				buf_read[read] = '\0';
+				buf_read[read] = '\0'; // If the message is longer than 999 characters
 				offset = 0;
 
-				while (extract_message(&buf_read[offset]))
+				while (extract_message(&buf_read[offset])) // Start the reading from when we last ended it
 				{
 					sprintf(buf_write, "client %d: ", client[fd]);
 					sendAll(fd, buf_write, &writefds, fdMax);
 					sendAll(fd, tmp, &writefds, fdMax);
-					offset += strlen(tmp);
+					offset += strlen(tmp); // Get the end of what we already read
 					free(tmp);
 				}
 			}

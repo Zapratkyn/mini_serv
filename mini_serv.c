@@ -108,8 +108,8 @@ int main(int ac, char **argv)
 			}
 			else
 			{
-				res = recv(fd, buf_read, 999, 0);
-				if (res <= 0)
+				read = recv(fd, buf_read, 999, 0);
+				if (read <= 0)
 				{
 					sprintf(buf_write, "server: client %d just left\n", client[fd]);
 					sendAll(fd, buf_write, &writefds, fdMax);
@@ -117,7 +117,7 @@ int main(int ac, char **argv)
 					close(fd);
 				}
 
-				buf_read[res] = '\0';
+				buf_read[read] = '\0';
 				offset = 0;
 
 				while (extract_message(&buf_read[offset]))

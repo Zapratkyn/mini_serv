@@ -56,7 +56,7 @@ int	initsock(fd_set *active)
 {
 	int reuse = 1;
 	int fdMax = socket(AF_INET, SOCK_STREAM, 0);
-    if (fdMax < 0 || setsockopt(fdMax, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)
+	if (fdMax < 0)
 		ft_error();
 	FD_SET(fdMax, active);
 	return fdMax;
